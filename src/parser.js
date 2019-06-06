@@ -15,7 +15,9 @@ class Parser extends Component {
     super();
     this.state = {
       data: {},
-      newdata: []
+      newdata: [],
+      usedChars: [],
+      permArr: []
     };
     this.getDetails = this.getDetails.bind(this);
     this.cleanData = this.cleanData.bind(this);
@@ -63,6 +65,32 @@ class Parser extends Component {
     });
   }
 
+  permute(permutation) {
+    var length = permutation.length,
+      result = [permutation.slice()],
+      c = new Array(length).fill(0),
+      i = 1,
+      k,
+      p;
+
+    while (i < length) {
+      if (c[i] < i) {
+        k = i % 2 && c[i];
+        p = permutation[i];
+        permutation[i] = permutation[k];
+        permutation[k] = p;
+        ++c[i];
+        i = 1;
+        result.push(permutation.slice());
+      } else {
+        c[i] = 0;
+        ++i;
+      }
+    }
+    console.log(result);
+    return result;
+  }
+
   render() {
     return (
       <div className="home-main">
@@ -76,18 +104,16 @@ class Parser extends Component {
                 id: "title",
                 accessor: d => d.title,
                 filterMethod: (filter, rows) => {
-                  let myarray = rows;
                   var finalarray = [];
-
-                  let newArray = [];
-
-                  filter.value.split(" ").map(element => {
-                    matchSorter(rows, element, { keys: ["title"] }).forEach(
-                      rec => {
-                        finalarray.push(rec);
+                  this.permute(filter.value.split(" ")).map(element => {
+                    var elem = element.join(" ");
+                    matchSorter(rows, elem, { keys: ["title"] }).forEach(
+                      res => {
+                        finalarray.push(res);
                       }
                     );
                   });
+                  console.log(finalarray);
                   return finalarray;
                 },
                 filterAll: true
